@@ -21,6 +21,15 @@ export class User {
   public nameAndEmail() {
     return `${this.name} - ${this.email}`;
   }
+
+  public mapToPrimitives() {
+    return {
+      id: this.id.value,
+      name: this.name.value,
+      email: this.email.value,
+      createdAt: this.createdAt.value,
+    };
+  }
 }
 
 //Value Objects para definir las  propiedades de nuestra  clase lo haremos por cada atributo de nuestra clase y lo modularemos en tantos archivos diferentes como atributos tenga nuestra clase.

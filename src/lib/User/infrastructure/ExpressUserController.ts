@@ -1,57 +1,82 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { ServiceContainer } from "../../Shared/infrastructure/ServiceContainer";
 import { UserNotFoundError } from "../domain/UserNotFoundError";
 
-export class ExpressUserControllerr {
-  async getAll(req: Request, res: Response) {
-    const users = await ServiceContainer.user.getAll.run();
+// Definir un tipo genérico para las funciones de los controladores
+type ControllerHandler = (req: Request, res: Response, next: NextFunction) => Promise<void>;
 
-    return res.json(users).status(200);
-  }
+export class ExpressUserController {
+  getAll: ControllerHandler = async (req, res, next) => {
+    try {
+      const users = await ServiceContainer.user.getAll.run();
 
-  async getOneById(req: Request, res: Response) {
+      res.json(users.map((user) => user.mapToPrimitives())).status(200);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getOneById: ControllerHandler = async (req, res, next) => {
     try {
       const user = await ServiceContainer.user.getOneById.run(req.params.id);
 
-      return res.json(user).status(200);
+      res.json(user.mapToPrimitives()).status(200);
     } catch (error) {
       if (error instanceof UserNotFoundError) {
-        return res.status(400).json({ message: error.message });
+        res.status(404).json({ message: error.message });
       }
 
-      throw error;
+      next(error);
     }
-  }
+  };
 
-  async create(req: Request, res: Response) {
-    const { id, name, email, createdAt } = req.body as {
-      id: string;
-      name: string;
-      email: string;
-      createdAt: string;
-    };
+  create: ControllerHandler = async (req, res, next) => {
+    try {
+      const { id, name, email, createdAt } = req.body as {
+        id: string;
+        name: string;
+        email: string;
+        createdAt: string;
+      };
 
-    await ServiceContainer.user.create.run(id, name, email, new Date(createdAt));
+      await ServiceContainer.user.create.run(id, name, email, new Date(createdAt));
 
-    return res.status(201).send();
-  }
+      res.status(201).send();
+    } catch (error) {
+      next(error);
+    }
+  };
 
-  async edit(req: Request, res: Response) {
-    const { id, name, email, createdAt } = req.body as {
-      id: string;
-      name: string;
-      email: string;
-      createdAt: string;
-    };
+  edit: ControllerHandler = async (req, res, next) => {
+    try {
+      const { id, name, email, createdAt } = req.body as {
+        id: string;
+        name: string;
+        email: string;
+        createdAt: string;
+      };
 
-    await ServiceContainer.user.edit.run(id, name, email, new Date(createdAt));
+      await ServiceContainer.user.edit.run(id, name, email, new Date(createdAt));
 
-    return res.status(204).send();
-  }
+      res.status(204).send();
+    } catch (error) {
+      if (error instanceof UserNotFoundError) {
+        res.status(404).json({ message: error.message });
+      }
+      next(error);
+    }
+  };
 
-  async delete(req: Request, res: Response) {
-    await ServiceContainer.user.delete.run(req.params.id);
+  delete: ControllerHandler = async (req, res, next) => {
+    try {
+      await ServiceContainer.user.delete.run(req.params.id);
 
-    return res.status(204).send();
-  }
+      res.status(204).send();
+    } catch (error) {
+      if (error instanceof UserNotFoundError) {
+        res.status(404).json({ message: error.message });
+      }
+      next(error);
+    }
+  };
 }

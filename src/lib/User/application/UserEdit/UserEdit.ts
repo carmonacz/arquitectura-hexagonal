@@ -3,6 +3,7 @@ import { UserCreatedAt } from "../../domain/UserCreatedAt";
 import { UserEmail } from "../../domain/UserEmail";
 import { UserId } from "../../domain/UserId";
 import { UserName } from "../../domain/UserName";
+import { UserNotFoundError } from "../../domain/UserNotFoundError";
 import { UserRepository } from "../../domain/UserRepository";
 
 export class UserEdit {
@@ -15,6 +16,10 @@ export class UserEdit {
       new UserEmail(email),
       new UserCreatedAt(createdAt)
     );
+
+    const userExists = await this.repository.getOneById(user.id);
+
+    if (!userExists) throw new UserNotFoundError("User not Found");
 
     return this.repository.edit(user);
   }
