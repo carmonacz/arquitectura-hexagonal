@@ -1,12 +1,14 @@
 import * as express from "express";
 import { Request, Response, NextFunction } from "express";
 import { ExpressUserRouter } from "./lib/User/infrastructure/ExpressUserRouter";
+import { ExpressTemaRouter } from "./lib/Temas/infraestructure/ExpressTemaRouter";
 
 const app = express();
 
 app.use(express.json());
 
 app.use(ExpressUserRouter);
+app.use(ExpressTemaRouter);
 
 app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof Error) {

@@ -2,6 +2,7 @@ import { Tema } from "../../dominio/Tema";
 import { TemaId } from "../../dominio/TemaId";
 import { TemaNombre } from "../../dominio/TemaNombre";
 import { TemaRepository } from "../../dominio/TemaRepository";
+import { TemaNotFoundError } from "../../dominio/TemaNotFoundError";
 
 export class TemaCreate {
   constructor(private repository: TemaRepository) {}

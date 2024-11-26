@@ -4,8 +4,14 @@ import { TemaRepository } from "../dominio/TemaRepository";
 
 export class InMemoryTemaRepository implements TemaRepository {
   private temas: Tema[] = [];
+  private autoIncrementId: number = 1;
 
   async create(tema: Tema): Promise<void> {
+    if (!tema.id.value) {
+      // Generar un nuevo ID autoincremental si no está definido
+      tema.id = new TemaId(this.autoIncrementId.toString());
+      this.autoIncrementId++; // Incrementar el contador
+    }
     this.temas.push(tema);
   }
 
